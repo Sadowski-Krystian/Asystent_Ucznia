@@ -1,3 +1,4 @@
+from os import stat
 import tkinter as tk
 from tkinter import *
 
@@ -18,13 +19,46 @@ class AsystentUcznia(tk.Tk):
         self.offset = "+"+str(self.place_x)+"+"+str(self.place_y)
         self.geometry(str(self.win_wid)+"x"+str(self.win_hei)+self.offset)
         self.isFullScreen = False
-        self.renderUi()
+        self.splashScreen()
    
 
     def quitApp(self):
         print("Zamykam program")
         self.quit()
 
+    def saveData(self, list1, name1, pass1):
+        plik = "user.txt"
+        data = list1+";"+name1
+        out = False
+        with open(plik, 'w') as writer:
+            writer.write(data)
+            out = True
+        return out
+
+    def goNext(self):
+        print("Naciśnięto przycisk")
+        list1 = self.lsb.curselection()
+        if(list1):
+            list1 = self.lsb.get(self.lsb.curselection())
+        else:
+            list1 = None
+        name1 = self.ent2.get()
+        pass1 = self.ent3.get()
+
+        if( list1 == None or name1=='' or pass1 == ''):
+            print("puste")
+            return
+
+        state = self.saveData(list1, name1, pass1)
+        if(state == False):
+            print("nie zapisano")
+            return
+
+        self.box.pack_forget()
+
+        self.fullScreen()
+        self.renderUi()
+    
     def notify(self):
         print("some notifi")
 
@@ -40,6 +74,44 @@ class AsystentUcznia(tk.Tk):
             self.isFullScreen = True
             self.attributes("-fullscreen", True) #tylko dla linuxa
             
+
+    def buildSelect(self, selBox):
+        box1 = Frame(selBox, height=100, width=10)
+        lstItemsArr = ["1a", "2b", "3c", "4d", "5e", "6f", "7g", "8h", "9i", ]
+        lstItems = StringVar(value=lstItemsArr)
+        scb = Scrollbar(box1, orient=VERTICAL)
+        self.lsb = Listbox(box1, listvariable=lstItems, selectmode=BROWSE, height=4, width=8, yscrollcommand=scb.set)
+        self.lsb.pack(side=LEFT)
+        scb.pack(side=LEFT)
+        scb.config(command=self.lsb.yview)
+        return box1
+
+    def splashScreen(self):
+        self.fullScreen()
+        self.box = Frame(self)
+        lbl1 = Label(self.box, text="Wybierz klasę")
+        lbl2 = Label(self.box, text="Podaj nazwisko")
+        lbl3 = Label(self.box, text="Podaj hasło")
+        sel1 = Frame(self.box)
+        self.buildSelect(sel1).pack()
+        self.ent2 = Entry(self.box)
+        self.ent3 = Entry(self.box)
+        btnSet = Button(self.box, text="Dalej", command=self.goNext)
+        lbl1.grid(row=1, column=1)
+        lbl2.grid(row=1, column=2)
+        lbl3.grid(row=1, column=3)
+        btnSet.grid(row=1, column=4)
+        self.ent2.grid(row=2, column=2)
+        self.ent3.grid(row=2, column=3)
+        sel1.grid(row=2, column=1)
+        self.box.pack(fill=BOTH)
+
+
+
+
+
+
+
     def renderUi(self):
 
 
